@@ -11,11 +11,11 @@ class easylamp {
 
 	file { "/var/www/phpinfo.php":
 		ensure => "present",
-		content => "<?php phpinfo();?><br/>installed with tasksel",
+		content => "<?php phpinfo();?>",
 		require => Exec["lamp"],
 	}
 
-	 file { "/etc/apache2/mods-available/php5.conf":
+	file { "/etc/apache2/mods-available/php5.conf":
                 notify => Service["apache2"],
                 ensure => "present",
                 source => "puppet:///modules/lamp/php5.conf",
