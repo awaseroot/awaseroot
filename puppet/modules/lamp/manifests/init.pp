@@ -48,7 +48,7 @@ class lamp {
                 require => [Package["apache2"], Package["php5"]],	
 	}
 
-	 file { "/etc/apache2/apache2.conf":
+	file { "/etc/apache2/apache2.conf":
                 notify => Service["apache2"],
                 ensure => "present",
                 source => "puppet:///modules/lamp/apache2.conf",
