@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ##
+# You can create multiple Vagrant boxes with this scrpit.
 # Do these first or run vaginit.sh script if you don't have any Vagrant boxes.
 # If you have a Vagrant box already, just package it.
 # $ sudo apt-get update
