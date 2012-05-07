@@ -9,9 +9,12 @@ class easylamp {
 		require => Package["tasksel"],
 	}
 
-	file { "/var/www/phpinfo.php":
+	file { "/var/www/index.php":
 		ensure => "present",
 		content => "<?php phpinfo();?>",
+		owner => "root",
+                group => "root",
+                mode => 644,
 		require => Exec["lamp"],
 	}
 
@@ -19,6 +22,9 @@ class easylamp {
                 notify => Service["apache2"],
                 ensure => "present",
                 source => "puppet:///modules/lamp/php5.conf",
+		owner => "root",
+                group => "root",
+                mode => 644,
                 require => Exec["lamp"],
         }
 
