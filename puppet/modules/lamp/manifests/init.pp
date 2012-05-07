@@ -38,6 +38,9 @@ class lamp {
 		notify => Service["apache2"],
 		ensure => "present",
 		source => "puppet:///modules/lamp/php5.conf",
+		owner => "root",
+                group => "root",
+                mode => 644,
 		require => [Package["apache2"], Package["php5"]],
 	}
 	
@@ -45,6 +48,9 @@ class lamp {
 		notify => Service["apache2"],
                 ensure => "present",
                 source => "puppet:///modules/lamp/index.php",
+		owner => "root",
+		group => "root",
+		mode => 644,
                 require => [Package["apache2"], Package["php5"]],	
 	}
 
@@ -52,6 +58,9 @@ class lamp {
                 notify => Service["apache2"],
                 ensure => "present",
                 source => "puppet:///modules/lamp/apache2.conf",
+		owner => "root",
+                group => "root",
+                mode => 644,
                 require => [Package["apache2"], Package["phpmyadmin"]],
         }
 
