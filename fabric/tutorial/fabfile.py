@@ -35,6 +35,9 @@ def pcmd(cmd):
 def file_send(localpath,remotepath):
     put(localpath,remotepath,use_sudo=True)
 
+def file_send_oldmod(localpath,remotepath):
+    put(localpath,remotepath,mirror_local_mode=True)
+
 def file_sendm(localpath,remotepath,num):
     put(localpath,remotepath,mode=int(num, 8))
 
