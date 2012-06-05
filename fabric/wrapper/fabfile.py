@@ -36,3 +36,14 @@ def rollback():
     sudo("apt-get -y autoremove php5")
     sudo("rm -r mydir")
     sudo("rm /tmp/foo.conf")
+
+@contextmanager
+def settingwrap():
+    with settings(warn_only=True, user="simo"):
+        yield
+
+@task
+def deploy():
+    with settingwrap():
+        run("whoami")
+        run("hostname")
