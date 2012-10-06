@@ -1,29 +1,20 @@
 # == Class: lamp
 #
-#  This module manages LAMP environment.
+# This module manages LAMP environment.
 #
-#  Tested platforms:
-#   - Ubuntu 12.04
-#   - CentOS 6.2
+# Tested platforms:
+#  - Ubuntu 12.04
+#  - CentOS 6.2
 #
 # === Parameters
 #
-#  $version = [ "installed", "latest" ]
-#
-# === Actions
-#
-#  Installs, configures, and manages LAMP environment.
-#  Apache, MySQL, PHP
-#
-# === Requires
-#
-#  Nothing.
+# $version = [ 'installed', 'latest' ]
 # 
-# === Sample Usage
+# === Examples
 #
-#  class { "lamp":
-#    version => "latest",
-#  }
+# class { 'lamp':
+#   version => 'latest',
+# }
 #
 # === Authors
 #
