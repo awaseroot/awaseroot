@@ -113,9 +113,24 @@ class nagios3($version='latest') {
       notify  => Service['nagios3'],
     }
 
+    nagios_host { 'hngu':
+      target  => '/etc/nagios3/objects/nagios_host.cfg',
+      use     => 'linux-box',
+      alias   => 'Ubuntu 12.10',
+      address => '192.168.100.111',
+    }
+
     file { '/etc/nagios-plugins/config/nt.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/nagios-plugins/nt.cfg',
+      require => Package['nagios3'],
+      notify  => Service['nagios3'],
+    }
+
+    file { '/etc/init.d/nagios3':
+      ensure  => present,
+      source  => 'puppet:///modules/nagios3/init.d/nagios3',
+      mode    => '0755',
       require => Package['nagios3'],
       notify  => Service['nagios3'],
     }
