@@ -6,6 +6,14 @@
 # Tested platforms:
 #  - Ubuntu 12.10
 #
+# === TODO
+#
+# - Native puppet resources instead of config files
+# - Templates
+# - Windows monitoring 
+# - Linux monitoring
+# - Figure out more things to do.
+#
 # === Parameters
 #
 # $version = [ 'installed', 'latest' ]
@@ -52,9 +60,9 @@ class nagios3($version='latest') {
     package { 'nagios3': require => Package['apache2'] }
 
     service { 'nagios3':
-      ensure  => 'running',
-      enable  => true,
-      require => Package['nagios3'],
+      ensure     => 'running',
+      enable     => true,
+      require    => Package['nagios3'],
     }
 
     file { '/etc/nagios3/nagios.cfg':
@@ -80,6 +88,27 @@ class nagios3($version='latest') {
     file { '/etc/nagios3/htpasswd.users': 
       ensure  => present,
       source  => 'puppet:///modules/nagios3/htpasswd.users',
+      require => Package['nagios3'],
+      notify  => Service['nagios3'],
+    }
+    
+    file { '/etc/nagios3/objects/templates.cfg':
+      ensure  => present,
+      source  => 'puppet:///modules/nagios3/objects/templates.cfg',
+      require => Package['nagios3'],
+      notify  => Service['nagios3'],
+    }
+
+    file { '/etc/nagios3/objects/windows.cfg':
+      ensure  => present,
+      source  => 'puppet:///modules/nagios3/objects/windows.cfg',
+      require => Package['nagios3'],
+      notify  => Service['nagios3'],
+    }
+
+    file { '/etc/nagios-plugins/config/nt.cfg':
+      ensure  => present,
+      source  => 'puppet:///modules/nagios3/nagios-plugins/nt.cfg',
       require => Package['nagios3'],
       notify  => Service['nagios3'],
     }
