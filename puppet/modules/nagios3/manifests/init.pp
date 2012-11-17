@@ -106,6 +106,13 @@ class nagios3($version='latest') {
       notify  => Service['nagios3'],
     }
 
+    file { '/etc/nagios3/objects/linux.cfg':
+      ensure  => present,
+      source  => 'puppet:///modules/nagios3/objects/linux.cfg',
+      require => Package['nagios3'],
+      notify  => Service['nagios3'],
+    }
+
     file { '/etc/nagios-plugins/config/nt.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/nagios-plugins/nt.cfg',
