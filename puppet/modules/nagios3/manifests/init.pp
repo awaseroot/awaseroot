@@ -63,9 +63,9 @@ class nagios3($version='latest') {
     package { 'nagios-nrpe-plugin': require => Package['nagios3'] }
 
     service { 'nagios3':
-      ensure     => 'running',
-      enable     => true,
-      require    => Package['nagios3'],
+      ensure  => 'running',
+      enable  => true,
+      require => Package['nagios3'],
     }
 
     file { '/etc/nagios3/nagios.cfg':
@@ -84,7 +84,7 @@ class nagios3($version='latest') {
 
     file { '/etc/nagios3/objects':
       ensure  => directory,
-      mode   => 0755,
+      mode    => 0755,
       require => Package['nagios3'],
     }
 
@@ -120,7 +120,7 @@ class nagios3($version='latest') {
     Nagios_hostgroup { require => Package['nagios3'], notify  => Service['nagios3'], }
 
     nagios_hostgroup { 'linuxhosts':
-      target  => '/etc/nagios3/objects/nagios_hostgroup.cfg',
+      target => '/etc/nagios3/objects/nagios_hostgroup.cfg',
     }
 
     nagios_hostgroup { 'winhosts':
@@ -135,32 +135,32 @@ class nagios3($version='latest') {
     }
 
     nagios_service { 'check_load':
-      hostgroup_name => 'linuxhosts',
-      check_command  => 'check_nrpe_1arg!check_load',
+      hostgroup_name      => 'linuxhosts',
+      check_command       => 'check_nrpe_1arg!check_load',
       service_description => 'CPU Load',
     }
 
     nagios_service { 'check_users':
-      hostgroup_name => 'linuxhosts',
-      check_command  => 'check_nrpe_1arg!check_users',
+      hostgroup_name      => 'linuxhosts',
+      check_command       => 'check_nrpe_1arg!check_users',
       service_description => 'Current Users',
     }
 
     nagios_service { 'check_total_procs':
-      hostgroup_name => 'linuxhosts',
-      check_command  => "check_nrpe_1arg!check_total_procs",
+      hostgroup_name      => 'linuxhosts',
+      check_command       => "check_nrpe_1arg!check_total_procs",
       service_description => 'Total Processes',
     }
 
     nagios_service { 'check_hda1':
-      hostgroup_name => 'linuxhosts',
-      check_command  => "check_nrpe_1arg!check_hda1",
+      hostgroup_name      => 'linuxhosts',
+      check_command       => "check_nrpe_1arg!check_hda1",
       service_description => '/dev/hda1 Free Space',
     }
 
     nagios_service { 'check_zombie_procs':
-      hostgroup_name => 'linuxhosts',
-      check_command  => "check_nrpe_1arg!check_zombie_procs",
+      hostgroup_name      => 'linuxhosts',
+      check_command       => "check_nrpe_1arg!check_zombie_procs",
       service_description => 'Zombie Processes',
     }
   }
@@ -174,10 +174,10 @@ class nagios3($version='latest') {
 define linuxhost ($name,$address) {
 
   nagios_host { $title:
-    target     => '/etc/nagios3/objects/linux_hosts.cfg',
-    use        => 'linux-box',
-    alias      => $name,
-    address    => $address,
+    target  => '/etc/nagios3/objects/linux_hosts.cfg',
+    use     => 'linux-box',
+    alias   => $name,
+    address => $address,
     require => Package['nagios3'],
     notify  => Service['nagios3'],
   }
@@ -186,10 +186,10 @@ define linuxhost ($name,$address) {
 define winhost ($name,$address) {
 
   nagios_host { $title:
-    target     => '/etc/nagios3/objects/windows_hosts.cfg',
-    use        => 'windows-server',
-    alias      => $name,
-    address    => $address,
+    target  => '/etc/nagios3/objects/windows_hosts.cfg',
+    use     => 'windows-server',
+    alias   => $name,
+    address => $address,
     require => Package['nagios3'],
     notify  => Service['nagios3'],
   }
