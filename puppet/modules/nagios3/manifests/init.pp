@@ -9,8 +9,8 @@
 # === Parameters
 #
 # $version = [ 'installed', 'latest' ]
-# linuxhost (alias,address)
-# winhost (alias,address)
+# linuxhost (name,address)
+# winhost (name,address)
 # 
 # === Examples
 #
