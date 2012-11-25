@@ -1,27 +1,29 @@
 # == Class: nagios3
 #
 # This module manages Nagios.
-# Work in progress... Only localhost monitoring at the moment.
+# Work in progress...
 #
 # Tested platforms:
 #  - Ubuntu 12.10
 #
-# === TODO
-#
-# - Native puppet resources instead of config files
-# - Templates
-# - Windows monitoring 
-# - Linux monitoring
-# - Figure out more things to do.
-#
 # === Parameters
 #
 # $version = [ 'installed', 'latest' ]
+# linuxhost (alias,address)
+# winhost (alias,address)
 # 
 # === Examples
 #
 # class { 'nagios3':
 #   version => 'latest',
+# }
+# linuxhost { 'linux1':
+#   name    => 'Ubuntu Linux',
+#   address => '192.168.100.111',
+# }
+# winhost { 'win1':
+#   name    => 'windows',
+#   address => '192.168.100.25',
 # }
 #
 # === Authors
@@ -58,6 +60,7 @@ class nagios3($version='latest') {
     }
 
     package { 'nagios3': require => Package['apache2'] }
+    package { 'nagios-nrpe-plugin': require => Package['nagios3'] }
 
     service { 'nagios3':
       ensure     => 'running',
@@ -99,27 +102,6 @@ class nagios3($version='latest') {
       notify  => Service['nagios3'],
     }
 
-    file { '/etc/nagios3/objects/windows.cfg':
-      ensure  => present,
-      source  => 'puppet:///modules/nagios3/objects/windows.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
-    }
-
-    file { '/etc/nagios3/objects/linux.cfg':
-      ensure  => present,
-      source  => 'puppet:///modules/nagios3/objects/linux.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
-    }
-
-    nagios_host { 'hngu':
-      target  => '/etc/nagios3/objects/nagios_host.cfg',
-      use     => 'linux-box',
-      alias   => 'Ubuntu 12.10',
-      address => '192.168.100.111',
-    }
-
     file { '/etc/nagios-plugins/config/nt.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/nagios-plugins/nt.cfg',
@@ -134,5 +116,81 @@ class nagios3($version='latest') {
       require => Package['nagios3'],
       notify  => Service['nagios3'],
     }
+
+    Nagios_hostgroup { require => Package['nagios3'], notify  => Service['nagios3'], }
+
+    nagios_hostgroup { 'linuxhosts':
+      target  => '/etc/nagios3/objects/nagios_hostgroup.cfg',
+    }
+
+    nagios_hostgroup { 'winhosts':
+      target => '/etc/nagios3/objects/nagios_hostgroup.cfg',
+    }
+
+    Nagios_service { 
+      require => Package['nagios3'], 
+      notify  => Service['nagios3'],
+      target  => '/etc/nagios3/objects/nagios_services.cfg',
+      use     => 'generic-service'
+    }
+
+    nagios_service { 'check_load':
+      hostgroup_name => 'linuxhosts',
+      check_command  => 'check_nrpe_1arg!check_load',
+      service_description => 'CPU Load',
+    }
+
+    nagios_service { 'check_users':
+      hostgroup_name => 'linuxhosts',
+      check_command  => 'check_nrpe_1arg!check_users',
+      service_description => 'Current Users',
+    }
+
+    nagios_service { 'check_total_procs':
+      hostgroup_name => 'linuxhosts',
+      check_command  => "check_nrpe_1arg!check_total_procs",
+      service_description => 'Total Processes',
+    }
+
+    nagios_service { 'check_hda1':
+      hostgroup_name => 'linuxhosts',
+      check_command  => "check_nrpe_1arg!check_hda1",
+      service_description => '/dev/hda1 Free Space',
+    }
+
+    nagios_service { 'check_zombie_procs':
+      hostgroup_name => 'linuxhosts',
+      check_command  => "check_nrpe_1arg!check_zombie_procs",
+      service_description => 'Zombie Processes',
+    }
+  }
+
+  file { '/etc/nagios3/objects/nagios_hostgroup.cfg': ensure => 'file', }
+  file { '/etc/nagios3/objects/nagios_services.cfg': ensure => 'file', }
+  file { '/etc/nagios3/objects/linux_hosts.cfg': ensure => 'file', }
+  file { '/etc/nagios3/objects/windows_hosts.cfg': ensure => 'file', }
+} 
+
+define linuxhost ($name,$address) {
+
+  nagios_host { $title:
+    target     => '/etc/nagios3/objects/linux_hosts.cfg',
+    use        => 'linux-box',
+    alias      => $name,
+    address    => $address,
+    require => Package['nagios3'],
+    notify  => Service['nagios3'],
+  }
+}
+
+define winhost ($name,address) {
+
+  nagios_host { $title:
+    target     => '/etc/nagios3/objects/windows_hosts.cfg',
+    use        => 'windows-server',
+    alias      => $name,
+    address    => $address,
+    require => Package['nagios3'],
+    notify  => Service['nagios3'],
   }
 }
