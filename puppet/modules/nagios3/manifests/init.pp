@@ -183,7 +183,7 @@ define linuxhost ($name,$address) {
   }
 }
 
-define winhost ($name,address) {
+define winhost ($name,$address) {
 
   nagios_host { $title:
     target     => '/etc/nagios3/objects/windows_hosts.cfg',
