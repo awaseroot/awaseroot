@@ -163,12 +163,37 @@ class nagios3($version='latest') {
       check_command       => "check_nrpe_1arg!check_zombie_procs",
       service_description => 'Zombie Processes',
     }
-  }
+    
+    nagios_service { 'check_win_up':
+      hostgroup_name      => 'winhosts',
+      check_command       => "check_nrpe!CheckUpTime!MaxWarn=3d MaxCrit=7d",
+      service_description => 'Uptime',
+    }
 
-  file { '/etc/nagios3/objects/nagios_hostgroup.cfg': ensure => 'file', }
-  file { '/etc/nagios3/objects/nagios_services.cfg': ensure => 'file', }
-  file { '/etc/nagios3/objects/linux_hosts.cfg': ensure => 'file', }
-  file { '/etc/nagios3/objects/windows_hosts.cfg': ensure => 'file', }
+    nagios_service { 'check_disk_space':
+      hostgroup_name      => 'winhosts',
+      check_command       => "check_nt!USEDDISKSPACE!-l c -w 80 -c 90",
+      service_description => 'C:\ Drive Space',
+    }
+
+    nagios_service { 'check_win_cpu':
+      hostgroup_name      => 'winhosts',
+      check_command       => "check_nrpe!CheckCPU!MaxWarn=80 MaxCrit=90 time=20m time=10s time=4",
+      service_description => 'CPU load',
+    }
+
+    nagios_service { 'check_win_mem':
+      hostgroup_name      => 'winhosts',
+      check_command       => "check_nrpe!CheckMEM!MaxWarn=80% MaxCrit=90% ShowAll type=physical",
+      service_description => 'Memory usage',
+    }
+
+    file { '/etc/nagios3/objects/nagios_hostgroup.cfg': ensure => 'file', }
+    file { '/etc/nagios3/objects/nagios_services.cfg': ensure => 'file', }
+    file { '/etc/nagios3/objects/linux_hosts.cfg': ensure => 'file', }
+    file { '/etc/nagios3/objects/windows_hosts.cfg': ensure => 'file', }
+
+  }
 } 
 
 define linuxhost ($name,$address) {
