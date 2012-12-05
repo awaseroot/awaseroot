@@ -2,3 +2,8 @@ Notice that you need the NSClient++ .msi package which is available here:
 http://files.nsclient.org/x-0.4.x/NSCP-0.4.1.62-x64.msi
 
 Modules for Windows can't use normal Puppet URL on Package source attribute. So you need to have the .msi package on your local network.
+
+Check this site if you need more information on NSClient++:
+http://nsclient.org
+
+NSClient is created and developed by Michael Medin
