@@ -5,6 +5,11 @@ node 'thor.elisa' { include lamp }
 node 'win7box.local' { include nscp }
 
 node 'hngu.elisa' { 
+  class { 'postfix':
+    version   => 'latest',
+    myorigin  => 'elisa.fi',
+    relayhost => 'smtp.kolumbus.fi',
+  }
   class { 'nagios3':
     version => 'latest',
   }
