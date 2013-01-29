@@ -163,7 +163,7 @@ class nagios3($version='latest') {
       check_command       => "check_nrpe_1arg!check_zombie_procs",
       service_description => 'Zombie Processes',
     }
-    
+
     nagios_service { 'check_win_up':
       hostgroup_name      => 'winhosts',
       check_command       => "check_nrpe!CheckUpTime!MaxWarn=3d MaxCrit=7d",
@@ -186,6 +186,13 @@ class nagios3($version='latest') {
       hostgroup_name      => 'winhosts',
       check_command       => "check_nrpe!CheckMEM!MaxWarn=80% MaxCrit=90% ShowAll type=physical",
       service_description => 'Memory usage',
+    }
+
+    file { '/etc/nagios3/conf.d/contacts_nagios2.cfg':
+      ensure => 'present',
+      source  => 'puppet:///modules/nagios3/conf.d/contacts_nagios2.cfg',
+      require => Package['nagios3'],
+      notify  => Service['nagios3'],
     }
 
     file { '/etc/nagios3/objects/nagios_hostgroup.cfg': ensure => 'file', }
