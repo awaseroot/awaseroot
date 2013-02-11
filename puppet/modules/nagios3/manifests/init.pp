@@ -25,6 +25,11 @@
 #   name    => 'windows',
 #   address => '192.168.100.25',
 # }
+# x_service { 'checkcpu':
+#   host => 'win1',
+#   cmd  => 'check_nrpe!CheckCPU!MaxWarn=80 MaxCrit=90 time=20m time=10s time=4',
+#   desc => 'CPU load',
+# }
 #
 # === Authors
 #
@@ -47,7 +52,7 @@ class nagios3($version='latest') {
   if ($ok) {
 
     Package { ensure => $version, }
-    File { owner => 'root', group => 'root', mode => '0644', }
+    File { owner => 'root', group => 'root', mode => '0644', require => Package['nagios3'], notify => Service['nagios3'], }
 
     package { 'libapache2-mod-php5': }
     package { 'libgd2-xpm-dev': }
@@ -71,50 +76,37 @@ class nagios3($version='latest') {
     file { '/etc/nagios3/nagios.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/nagios.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
 
     file { '/etc/nagios3/commands.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/commands.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
 
     file { '/etc/nagios3/objects':
       ensure  => directory,
       mode    => 0755,
-      require => Package['nagios3'],
     }
 
     file { '/etc/nagios3/htpasswd.users': 
       ensure  => present,
       source  => 'puppet:///modules/nagios3/htpasswd.users',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
     
     file { '/etc/nagios3/objects/templates.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/objects/templates.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
 
     file { '/etc/nagios-plugins/config/nt.cfg':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/nagios-plugins/nt.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
 
     file { '/etc/init.d/nagios3':
       ensure  => present,
       source  => 'puppet:///modules/nagios3/init.d/nagios3',
       mode    => '0755',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
 
     Nagios_hostgroup { require => Package['nagios3'], notify  => Service['nagios3'], }
@@ -191,8 +183,6 @@ class nagios3($version='latest') {
     file { '/etc/nagios3/conf.d/contacts_nagios2.cfg':
       ensure => 'present',
       source  => 'puppet:///modules/nagios3/conf.d/contacts_nagios2.cfg',
-      require => Package['nagios3'],
-      notify  => Service['nagios3'],
     }
 
     file { '/etc/nagios3/objects/nagios_hostgroup.cfg': ensure => 'file', }
@@ -224,5 +214,18 @@ define winhost ($name,$address) {
     address => $address,
     require => Package['nagios3'],
     notify  => Service['nagios3'],
+  }
+}
+
+define x_service ($host,$cmd,$desc) {
+
+  nagios_service { $title:
+    target              => '/etc/nagios3/objects/nagios_services.cfg',
+    use                 => 'generic-service',
+    host_name           => $host,
+    check_command       => $cmd,
+    service_description => $desc,
+    require             => Package['nagios3'],
+    notify              => Service['nagios3'],
   }
 }
