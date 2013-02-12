@@ -25,7 +25,14 @@ node 'hngu.elisa' {
     name    => 'windows',
     address => '192.168.100.25',
   }
-  x_service { 'checkfile':
+  myhost { 'host1':
+    name    => 'host1',
+    group   => 'group1',
+    address => 'host1.local',
+  }
+  mygroup { 'group1': }
+
+  myservice { 'checkfile':
     host => 'win1',
     cmd  => 'check_nrpe!check_files!/path:"c:\\temp" /namefilter:"test\.txt" /expectmatch:1 /age:30n /selage:newer /warning:1: /critical:1:',
     desc => 'File backup test',
