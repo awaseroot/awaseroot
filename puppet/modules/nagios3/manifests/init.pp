@@ -11,6 +11,9 @@
 # $version = [ 'installed', 'latest' ]
 # linuxhost (name,address)
 # winhost (name,address)
+# myhost (name,group,address)
+# myservice (host,cmd,desc)
+# mygroup (group)
 # 
 # === Examples
 #
@@ -25,11 +28,18 @@
 #   name    => 'windows',
 #   address => '192.168.100.25',
 # }
-# x_service { 'checkcpu':
+# myhost { 'host1':
+#   name    => 'host1',
+#   group   => 'group1',
+#   address => 'host1.local',
+# }
+# myservice { 'checkcpu':
 #   host => 'win1',
 #   cmd  => 'check_nrpe!CheckCPU!MaxWarn=80 MaxCrit=90 time=20m time=10s time=4',
 #   desc => 'CPU load',
 # }
+# mygroup { 'group1': }
+# 
 #
 # === Authors
 #
@@ -217,15 +227,39 @@ define winhost ($name,$address) {
   }
 }
 
-define x_service ($host,$cmd,$desc) {
+define myhost ($name,$group,$address) {
+
+  nagios_host { $title:
+    target     => '/etc/nagios3/objects/windows_hosts.cfg',
+    use        => 'windows-server',
+    hostgroups => $group,
+    alias      => $name,
+    address    => $address,
+    require    => Package['nagios3'],
+    notify     => Service['nagios3'],
+  }
+}
+
+define myservice ($host='',$group='',$cmd,$desc) {
 
   nagios_service { $title:
     target              => '/etc/nagios3/objects/nagios_services.cfg',
     use                 => 'generic-service',
     host_name           => $host,
+    hostgroup_name      => $group,
     check_command       => $cmd,
     service_description => $desc,
     require             => Package['nagios3'],
     notify              => Service['nagios3'],
   }
 }
+
+define mygroup {
+
+  nagios_hostgroup { $title:
+    target  => '/etc/nagios3/objects/nagios_hostgroup.cfg',
+    require => Package['nagios3'],
+    notify  => Service['nagios3'],
+  }
+}
+
