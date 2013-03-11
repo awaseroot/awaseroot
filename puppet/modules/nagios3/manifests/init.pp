@@ -11,8 +11,8 @@
 # $version = [ 'installed', 'latest' ]
 # linuxhost (name,address)
 # winhost (name,address)
-# myhost (name,group,address)
-# myservice (host,cmd,desc)
+# myhost (name,group,address,contactgr)
+# myservice (host,cmd,desc,contactgr)
 # mygroup (group)
 # 
 # === Examples
@@ -121,73 +121,11 @@ class nagios3($version='latest') {
 
     Nagios_hostgroup { require => Package['nagios3'], notify  => Service['nagios3'], }
 
-    nagios_hostgroup { 'linuxhosts':
-      target => '/etc/nagios3/objects/nagios_hostgroup.cfg',
-    }
-
-    nagios_hostgroup { 'winhosts':
-      target => '/etc/nagios3/objects/nagios_hostgroup.cfg',
-    }
-
     Nagios_service { 
       require => Package['nagios3'], 
       notify  => Service['nagios3'],
       target  => '/etc/nagios3/objects/nagios_services.cfg',
       use     => 'generic-service'
-    }
-
-    nagios_service { 'check_load':
-      hostgroup_name      => 'linuxhosts',
-      check_command       => 'check_nrpe_1arg!check_load',
-      service_description => 'CPU Load',
-    }
-
-    nagios_service { 'check_users':
-      hostgroup_name      => 'linuxhosts',
-      check_command       => 'check_nrpe_1arg!check_users',
-      service_description => 'Current Users',
-    }
-
-    nagios_service { 'check_total_procs':
-      hostgroup_name      => 'linuxhosts',
-      check_command       => "check_nrpe_1arg!check_total_procs",
-      service_description => 'Total Processes',
-    }
-
-    nagios_service { 'check_hda1':
-      hostgroup_name      => 'linuxhosts',
-      check_command       => "check_nrpe_1arg!check_hda1",
-      service_description => '/dev/hda1 Free Space',
-    }
-
-    nagios_service { 'check_zombie_procs':
-      hostgroup_name      => 'linuxhosts',
-      check_command       => "check_nrpe_1arg!check_zombie_procs",
-      service_description => 'Zombie Processes',
-    }
-
-    nagios_service { 'check_win_up':
-      hostgroup_name      => 'winhosts',
-      check_command       => "check_nrpe!CheckUpTime!MaxWarn=3d MaxCrit=7d",
-      service_description => 'Uptime',
-    }
-
-    nagios_service { 'check_disk_space':
-      hostgroup_name      => 'winhosts',
-      check_command       => "check_nt!USEDDISKSPACE!-l c -w 80 -c 90",
-      service_description => 'C:\ Drive Space',
-    }
-
-    nagios_service { 'check_win_cpu':
-      hostgroup_name      => 'winhosts',
-      check_command       => "check_nrpe!CheckCPU!MaxWarn=80 MaxCrit=90 time=20m time=10s time=4",
-      service_description => 'CPU load',
-    }
-
-    nagios_service { 'check_win_mem':
-      hostgroup_name      => 'winhosts',
-      check_command       => "check_nrpe!CheckMEM!MaxWarn=80% MaxCrit=90% ShowAll type=physical",
-      service_description => 'Memory usage',
     }
 
     file { '/etc/nagios3/conf.d/contacts_nagios2.cfg':
@@ -227,20 +165,21 @@ define winhost ($name,$address) {
   }
 }
 
-define myhost ($name,$group,$address) {
+define myhost ($name,$group,$address,$contactgr='admins') {
 
   nagios_host { $title:
-    target     => '/etc/nagios3/objects/windows_hosts.cfg',
-    use        => 'windows-server',
-    hostgroups => $group,
-    alias      => $name,
-    address    => $address,
-    require    => Package['nagios3'],
-    notify     => Service['nagios3'],
+    target         => '/etc/nagios3/objects/windows_hosts.cfg',
+    use            => 'windows-server',
+    hostgroups     => $group,
+    alias          => $name,
+    address        => $address,
+    contact_groups => $contactgr,
+    require        => Package['nagios3'],
+    notify         => Service['nagios3'],
   }
 }
 
-define myservice ($host='',$group='',$cmd,$desc) {
+define myservice ($host='',$group='',$contactgr='admins',$cmd,$desc) {
 
   nagios_service { $title:
     target              => '/etc/nagios3/objects/nagios_services.cfg',
@@ -249,6 +188,7 @@ define myservice ($host='',$group='',$cmd,$desc) {
     hostgroup_name      => $group,
     check_command       => $cmd,
     service_description => $desc,
+    contact_groups      => $contactgr,
     require             => Package['nagios3'],
     notify              => Service['nagios3'],
   }
